@@ -5,6 +5,15 @@ app_description = "Barakat master-site configuration and extensions"
 app_email = "osama.tbaileh@iztechvalley.ps"
 app_license = "mit"
 
+fixtures = [
+	{
+		"dt": "DocType",
+		"filters": [["name", "in", ["User Site Mapping"]]],
+	},
+]
+
+after_install = "barakat_master.setup.install.after_install"
+
 # Apps
 # ------------------
 
