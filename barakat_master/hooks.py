@@ -7,6 +7,13 @@ app_license = "mit"
 
 after_install = "barakat_master.setup.install.after_install"
 
+doc_events = {
+	"User": {
+		"before_validate": "barakat_master.sync.capture_new_password",
+		"on_update": "barakat_master.sync.enqueue_user_sync_to_clients",
+	},
+}
+
 # Apps
 # ------------------
 
