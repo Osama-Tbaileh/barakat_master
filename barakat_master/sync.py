@@ -104,7 +104,7 @@ def sync_user_to_client(email, site_url, payload):
 		resp = requests.post(
 			url,
 			headers={
-				"Authorization": f"token {api_key}:{api_secret}",
+				"X-Barakat-Master-Token": f"{api_key}:{api_secret}",
 				"Content-Type": "application/json",
 			},
 			json=body,
