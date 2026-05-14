@@ -1,0 +1,17 @@
+import frappe
+
+no_cache = True
+
+
+def get_context(context):
+    if frappe.session.user == "Guest":
+        frappe.local.flags.redirect_location = "/login?redirect-to=/site-select"
+        raise frappe.Redirect
+
+    if frappe.session.user == "Administrator":
+        frappe.local.flags.redirect_location = "/desk"
+        raise frappe.Redirect
+
+    context.no_breadcrumbs = True
+    context.no_header = True
+    context.no_footer = True

@@ -1,0 +1,81 @@
+{% extends "templates/web.html" %}
+
+{% block title %}Choose Your Site{% endblock %}
+
+{% block page_content %}
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:#f4f5f7;">
+	<div style="width:100%; max-width:480px; padding:16px;">
+
+		<div style="text-align:center; margin-bottom:32px;">
+			<h2 style="font-size:1.5rem; font-weight:600; color:#1f272e; margin-bottom:6px;">
+				Welcome
+			</h2>
+			<p style="color:#6c7a89; font-size:0.9rem;">
+				Select a site to open
+			</p>
+		</div>
+
+		<div id="site-list">
+			<div style="text-align:center; color:#aaa; padding:32px;">Loading…</div>
+		</div>
+
+		<div style="text-align:center; margin-top:32px;">
+			<a href="/api/method/logout" style="color:#6c7a89; font-size:0.85rem;">Sign out</a>
+		</div>
+
+	</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+frappe.ready(function () {
+	frappe.call({
+		method: "barakat_master.api.get_user_sites",
+		callback: function (r) {
+			var sites = (r && r.message) || [];
+			var container = document.getElementById("site-list");
+
+			if (!sites.length) {
+				container.innerHTML =
+					'<div style="text-align:center; color:#aaa; padding:32px;">No sites assigned to your account.</div>';
+				return;
+			}
+
+			container.innerHTML = sites.map(function (s) {
+				var label = s.company_name || s.site_url;
+				return (
+					'<div style="background:#fff; border:1px solid #e2e6ea; border-radius:8px; ' +
+					'padding:16px 20px; margin-bottom:12px; display:flex; ' +
+					'align-items:center; justify-content:space-between;">' +
+					'<span style="font-weight:500; color:#1f272e;">' + label + "</span>" +
+					'<button onclick="openSite(\'' + s.site_url + '\')" ' +
+					'style="background:#4361ee; color:#fff; border:none; border-radius:6px; ' +
+					'padding:8px 20px; cursor:pointer; font-size:0.9rem;">Open</button>' +
+					"</div>"
+				);
+			}).join("");
+		}
+	});
+});
+
+function openSite(site_url) {
+	frappe.call({
+		method: "barakat_master.api.generate_client_token",
+		args: { site_url: site_url },
+		callback: function (r) {
+			var token = r && r.message && r.message.token;
+			if (!token) {
+				frappe.msgprint("Could not generate access token. Please try again.");
+				return;
+			}
+			var port = window.location.port;
+			var portStr = port ? ":" + port : "";
+			window.location.href =
+				"http://" + site_url + portStr +
+				"/barakat-login?token=" + encodeURIComponent(token);
+		}
+	});
+}
+</script>
+{% endblock %}
