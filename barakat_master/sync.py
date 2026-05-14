@@ -75,17 +75,19 @@ def sync_user_to_client(email, site_url, payload):
 	Background worker job — push user update to a single client site.
 
 	Requires master's site_config.json to have:
-	  "api_key":    "<master admin API key>"
-	  "api_secret": "<master admin API secret>"
-	These must be the same values the client has as master_api_key / master_api_secret.
+	  "client_credentials": {
+	      "pos3.localhost": {"api_key": "...", "api_secret": "..."},
+	      "pos4.localhost": {"api_key": "...", "api_secret": "..."}
+	  }
+	Each entry is a valid Frappe API token for a user on that client site.
 	"""
-	api_key = frappe.conf.get("api_key")
-	api_secret = frappe.conf.get("api_secret")
+	client_creds = frappe.conf.get("client_credentials", {}).get(site_url, {})
+	api_key = client_creds.get("api_key")
+	api_secret = client_creds.get("api_secret")
 
 	if not api_key or not api_secret:
 		frappe.log_error(
-			"api_key / api_secret not set in master site_config.json — "
-			"cannot push user updates to client sites.",
+			f"No client_credentials configured for {site_url} in master site_config.json.",
 			"User Sync to Client",
 		)
 		return
@@ -104,7 +106,7 @@ def sync_user_to_client(email, site_url, payload):
 		resp = requests.post(
 			url,
 			headers={
-				"X-Barakat-Master-Token": f"{api_key}:{api_secret}",
+				"Authorization": f"token {api_key}:{api_secret}",
 				"Content-Type": "application/json",
 			},
 			json=body,
