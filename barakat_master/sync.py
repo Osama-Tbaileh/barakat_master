@@ -92,8 +92,7 @@ def sync_user_to_client(email, site_url, payload):
 		)
 		return
 
-	port = frappe.conf.get("webserver_port", 8000)
-	url = f"http://{site_url}:{port}/api/method/barakat.sync.receive_user_from_master"
+	url = f"http://{site_url}/api/method/barakat.sync.receive_user_from_master"
 
 	new_password = payload.get("new_password")
 	user_data = {k: v for k, v in payload.items() if k != "new_password"}

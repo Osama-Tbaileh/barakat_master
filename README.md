@@ -66,9 +66,9 @@ Each client site needs to know where master is and how to authenticate to it.
 }
 ```
 
-- `master_url` — full URL of the master site (no trailing slash)
+- `master_url` — full URL of the master site, no port, no trailing slash (e.g. `http://master.baraka-app.com`)
 - `master_api_key` / `master_api_secret` — Administrator API token on **master**
-- `site_url` — this client's hostname (used to register the User Site Mapping on master)
+- `site_url` — this client's hostname only, no port (e.g. `pos.baraka-app.com`). Master uses this to call `http://{site_url}/api/...` on port 80 via nginx.
 
 ---
 
