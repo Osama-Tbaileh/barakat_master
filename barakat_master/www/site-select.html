@@ -20,7 +20,7 @@
 		</div>
 
 		<div style="text-align:center; margin-top:32px;">
-			<a href="/api/method/logout" style="color:#6c7a89; font-size:0.85rem;">Sign out</a>
+			<a href="/logout" style="color:#6c7a89; font-size:0.85rem;">Sign out</a>
 		</div>
 
 	</div>
@@ -42,19 +42,34 @@ frappe.ready(function () {
 				return;
 			}
 
-			container.innerHTML = sites.map(function (s) {
+			var fragment = document.createDocumentFragment();
+			sites.forEach(function (s) {
 				var label = s.company_name || s.site_url;
-				return (
-					'<div style="background:#fff; border:1px solid #e2e6ea; border-radius:8px; ' +
-					'padding:16px 20px; margin-bottom:12px; display:flex; ' +
-					'align-items:center; justify-content:space-between;">' +
-					'<span style="font-weight:500; color:#1f272e;">' + label + "</span>" +
-					'<button onclick="openSite(\'' + s.site_url + '\')" ' +
-					'style="background:#4361ee; color:#fff; border:none; border-radius:6px; ' +
-					'padding:8px 20px; cursor:pointer; font-size:0.9rem;">Open</button>' +
-					"</div>"
-				);
-			}).join("");
+
+				var card = document.createElement("div");
+				card.style.cssText = "background:#fff; border:1px solid #e2e6ea; border-radius:8px; " +
+					"padding:16px 20px; margin-bottom:12px; display:flex; " +
+					"align-items:center; justify-content:space-between;";
+
+				var nameEl = document.createElement("span");
+				nameEl.style.cssText = "font-weight:500; color:#1f272e;";
+				nameEl.textContent = label;
+
+				var btn = document.createElement("button");
+				btn.style.cssText = "background:#4361ee; color:#fff; border:none; border-radius:6px; " +
+					"padding:8px 20px; cursor:pointer; font-size:0.9rem;";
+				btn.textContent = "Open";
+				btn.dataset.siteUrl = s.site_url;
+				btn.addEventListener("click", function () {
+					openSite(this.dataset.siteUrl);
+				});
+
+				card.appendChild(nameEl);
+				card.appendChild(btn);
+				fragment.appendChild(card);
+			});
+			container.innerHTML = "";
+			container.appendChild(fragment);
 		}
 	});
 });

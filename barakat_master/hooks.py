@@ -7,7 +7,7 @@ app_license = "mit"
 
 after_install = "barakat_master.setup.install.after_install"
 
-home_page = "site-select"
+get_website_user_home_page = "barakat_master.utils.get_user_home_page"
 
 doc_events = {
 	"User": {

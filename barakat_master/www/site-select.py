@@ -8,7 +8,7 @@ def get_context(context):
         frappe.local.flags.redirect_location = "/login?redirect-to=/site-select"
         raise frappe.Redirect
 
-    if frappe.session.user == "Administrator":
+    if frappe.session.data.get("user_type") == "System User":
         frappe.local.flags.redirect_location = "/desk"
         raise frappe.Redirect
 
