@@ -1,96 +1,219 @@
-{% extends "templates/web.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Choose Your Site</title>
+	<style>
+		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% block title %}Choose Your Site{% endblock %}
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+			background: #f0f2f5;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
 
-{% block page_content %}
-<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:#f4f5f7;">
-	<div style="width:100%; max-width:480px; padding:16px;">
+		.container {
+			width: 100%;
+			max-width: 440px;
+			padding: 16px;
+		}
 
-		<div style="text-align:center; margin-bottom:32px;">
-			<h2 style="font-size:1.5rem; font-weight:600; color:#1f272e; margin-bottom:6px;">
-				Welcome
-			</h2>
-			<p style="color:#6c7a89; font-size:0.9rem;">
-				Select a site to open
-			</p>
+		.card {
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+			padding: 40px 36px 32px;
+		}
+
+		.logo-wrap {
+			text-align: center;
+			margin-bottom: 28px;
+		}
+
+		.logo-wrap h1 {
+			font-size: 1.6rem;
+			font-weight: 700;
+			color: #1a1a2e;
+			letter-spacing: -0.5px;
+		}
+
+		.logo-wrap p {
+			color: #888;
+			font-size: 0.9rem;
+			margin-top: 4px;
+		}
+
+		#site-list { margin-top: 8px; }
+
+		.site-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border: 1px solid #e8eaed;
+			border-radius: 8px;
+			padding: 14px 18px;
+			margin-bottom: 10px;
+			transition: border-color 0.15s;
+		}
+
+		.site-row:hover { border-color: #4361ee; }
+
+		.site-name {
+			font-weight: 500;
+			color: #1a1a2e;
+			font-size: 0.95rem;
+		}
+
+		.open-btn {
+			background: #4361ee;
+			color: #fff;
+			border: none;
+			border-radius: 6px;
+			padding: 8px 20px;
+			font-size: 0.88rem;
+			font-weight: 500;
+			cursor: pointer;
+			transition: background 0.15s;
+			white-space: nowrap;
+		}
+
+		.open-btn:hover { background: #3451d1; }
+
+		.open-btn:disabled {
+			background: #a0aec0;
+			cursor: not-allowed;
+		}
+
+		.empty {
+			text-align: center;
+			color: #aaa;
+			padding: 32px 0;
+			font-size: 0.9rem;
+		}
+
+		.signout {
+			text-align: center;
+			margin-top: 24px;
+		}
+
+		.signout a {
+			color: #888;
+			font-size: 0.85rem;
+			text-decoration: none;
+		}
+
+		.signout a:hover { color: #4361ee; }
+
+		.spinner {
+			text-align: center;
+			color: #aaa;
+			padding: 24px 0;
+			font-size: 0.9rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="card">
+			<div class="logo-wrap">
+				<h1>Welcome</h1>
+				<p>Select a site to open</p>
+			</div>
+
+			<div id="site-list">
+				<div class="spinner">Loading…</div>
+			</div>
+
+			<div class="signout">
+				<a href="/api/method/logout">Sign out</a>
+			</div>
 		</div>
-
-		<div id="site-list">
-			<div style="text-align:center; color:#aaa; padding:32px;">Loading…</div>
-		</div>
-
-		<div style="text-align:center; margin-top:32px;">
-			<a href="/logout" style="color:#6c7a89; font-size:0.85rem;">Sign out</a>
-		</div>
-
 	</div>
-</div>
-{% endblock %}
 
-{% block script %}
-<script>
-frappe.ready(function () {
-	frappe.call({
-		method: "barakat_master.api.get_user_sites",
-		callback: function (r) {
-			var sites = (r && r.message) || [];
-			var container = document.getElementById("site-list");
+	<script>
+		(function () {
+			fetch("/api/method/barakat_master.api.get_user_sites", {
+				headers: { "X-Frappe-CSRF-Token": getCookie("csrf_token") || "" }
+			})
+				.then(function (r) { return r.json(); })
+				.then(function (data) {
+					var sites = (data && data.message) || [];
+					var container = document.getElementById("site-list");
 
-			if (!sites.length) {
-				container.innerHTML =
-					'<div style="text-align:center; color:#aaa; padding:32px;">No sites assigned to your account.</div>';
-				return;
-			}
+					if (!sites.length) {
+						container.innerHTML = '<div class="empty">No sites assigned to your account.</div>';
+						return;
+					}
 
-			var fragment = document.createDocumentFragment();
-			sites.forEach(function (s) {
-				var label = s.company_name || s.site_url;
+					container.innerHTML = "";
+					sites.forEach(function (s) {
+						var label = s.company_name || s.site_url;
+						var row = document.createElement("div");
+						row.className = "site-row";
 
-				var card = document.createElement("div");
-				card.style.cssText = "background:#fff; border:1px solid #e2e6ea; border-radius:8px; " +
-					"padding:16px 20px; margin-bottom:12px; display:flex; " +
-					"align-items:center; justify-content:space-between;";
+						var name = document.createElement("span");
+						name.className = "site-name";
+						name.textContent = label;
 
-				var nameEl = document.createElement("span");
-				nameEl.style.cssText = "font-weight:500; color:#1f272e;";
-				nameEl.textContent = label;
+						var btn = document.createElement("button");
+						btn.className = "open-btn";
+						btn.textContent = "Open";
+						btn.dataset.siteUrl = s.site_url;
+						btn.addEventListener("click", function () {
+							openSite(this.dataset.siteUrl, this);
+						});
 
-				var btn = document.createElement("button");
-				btn.style.cssText = "background:#4361ee; color:#fff; border:none; border-radius:6px; " +
-					"padding:8px 20px; cursor:pointer; font-size:0.9rem;";
-				btn.textContent = "Open";
-				btn.dataset.siteUrl = s.site_url;
-				btn.addEventListener("click", function () {
-					openSite(this.dataset.siteUrl);
+						row.appendChild(name);
+						row.appendChild(btn);
+						container.appendChild(row);
+					});
+				})
+				.catch(function () {
+					document.getElementById("site-list").innerHTML =
+						'<div class="empty">Failed to load sites. Please refresh.</div>';
 				});
 
-				card.appendChild(nameEl);
-				card.appendChild(btn);
-				fragment.appendChild(card);
-			});
-			container.innerHTML = "";
-			container.appendChild(fragment);
-		}
-	});
-});
+			function openSite(site_url, btn) {
+				btn.disabled = true;
+				btn.textContent = "Opening…";
 
-function openSite(site_url) {
-	frappe.call({
-		method: "barakat_master.api.generate_client_token",
-		args: { site_url: site_url },
-		callback: function (r) {
-			var token = r && r.message && r.message.token;
-			if (!token) {
-				frappe.msgprint("Could not generate access token. Please try again.");
-				return;
+				fetch("/api/method/barakat_master.api.generate_client_token", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-Frappe-CSRF-Token": getCookie("csrf_token") || ""
+					},
+					body: JSON.stringify({ site_url: site_url })
+				})
+					.then(function (r) { return r.json(); })
+					.then(function (data) {
+						var token = data && data.message && data.message.token;
+						if (!token) {
+							alert("Could not generate access token. Please try again.");
+							btn.disabled = false;
+							btn.textContent = "Open";
+							return;
+						}
+						var port = window.location.port;
+						var portStr = port ? ":" + port : "";
+						window.location.href = "http://" + site_url + portStr + "/barakat-login?token=" + encodeURIComponent(token);
+					})
+					.catch(function () {
+						alert("Something went wrong. Please try again.");
+						btn.disabled = false;
+						btn.textContent = "Open";
+					});
 			}
-			var port = window.location.port;
-			var portStr = port ? ":" + port : "";
-			window.location.href =
-				"http://" + site_url + portStr +
-				"/barakat-login?token=" + encodeURIComponent(token);
-		}
-	});
-}
-</script>
-{% endblock %}
+
+			function getCookie(name) {
+				var match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+				return match ? decodeURIComponent(match[1]) : "";
+			}
+		})();
+	</script>
+</body>
+</html>

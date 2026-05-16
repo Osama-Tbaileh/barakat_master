@@ -11,7 +11,3 @@ def get_context(context):
     if frappe.session.data.get("user_type") == "System User":
         frappe.local.flags.redirect_location = "/desk"
         raise frappe.Redirect
-
-    context.no_breadcrumbs = True
-    context.no_header = True
-    context.no_footer = True
