@@ -7,6 +7,8 @@ app_license = "mit"
 
 after_install = "barakat_master.setup.install.after_install"
 
+app_logo_url = "/assets/barakat_master/images/barakat-logo.svg"
+
 get_website_user_home_page = "barakat_master.utils.get_user_home_page"
 
 doc_events = {

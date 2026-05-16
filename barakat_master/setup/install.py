@@ -9,10 +9,12 @@ def after_install():
 
 def _configure_website():
     website = frappe.get_doc("Website Settings", "Website Settings")
+    website.app_name = "Barakat"
     website.hide_footer_signup = 1
     website.footer_powered = 0
     website.footer = ""
     website.show_language_picker = 1
+    website.custom_css = _login_custom_css()
     website.save(ignore_permissions=True)
 
 
@@ -21,7 +23,6 @@ def _configure_languages():
     system.language = "en"
     system.save(ignore_permissions=True)
 
-    # Install Arabic, English and Hebrew so the language picker appears on login
     for lang_code, lang_name in [("ar", "Arabic"), ("en", "English"), ("he", "Hebrew")]:
         if not frappe.db.exists("Language", lang_code):
             doc = frappe.new_doc("Language")
@@ -31,3 +32,48 @@ def _configure_languages():
             doc.insert(ignore_permissions=True)
         else:
             frappe.db.set_value("Language", lang_code, "enabled", 1)
+
+
+def _login_custom_css():
+    return """
+/* ── Login page ─────────────────────────────────────── */
+.login-content .app-logo {
+    height: 40px;
+    width: auto;
+}
+
+/* Language picker */
+.lang-selector {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 100;
+}
+
+.lang-selector select {
+    border: 1px solid #e2e6ea;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    background: #fff;
+    color: #444;
+    cursor: pointer;
+    outline: none;
+}
+
+.lang-selector select:hover {
+    border-color: #4361ee;
+}
+
+/* Hide the default ugly navbar on login */
+.navbar {
+    display: none !important;
+}
+
+/* Clean up page background */
+.for-login .login-content {
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border: none;
+}
+"""
