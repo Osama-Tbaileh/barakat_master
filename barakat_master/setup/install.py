@@ -10,7 +10,9 @@ def after_install():
 def _configure_website():
     website = frappe.get_doc("Website Settings", "Website Settings")
     website.hide_footer_signup = 1
+    website.footer_powered = 0
     website.footer = ""
+    website.show_language_picker = 1
     website.save(ignore_permissions=True)
 
 
