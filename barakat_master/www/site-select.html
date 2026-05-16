@@ -129,7 +129,7 @@
 			</div>
 
 			<div class="signout">
-				<a href="/api/method/logout">Sign out</a>
+				<a href="#" onclick="signOut(event)">Sign out</a>
 			</div>
 		</div>
 	</div>
@@ -214,6 +214,18 @@
 				return match ? decodeURIComponent(match[1]) : "";
 			}
 		})();
+
+		function signOut(e) {
+			e.preventDefault();
+			fetch("/api/method/logout", {
+				method: "POST",
+				headers: { "X-Frappe-CSRF-Token": document.cookie.match(/csrf_token=([^;]*)/) ? decodeURIComponent(document.cookie.match(/csrf_token=([^;]*)/)[1]) : "" }
+			}).then(function () {
+				window.location.href = "/login";
+			}).catch(function () {
+				window.location.href = "/login";
+			});
+		}
 	</script>
 </body>
 </html>
