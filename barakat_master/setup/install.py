@@ -10,6 +10,7 @@ def after_install():
 def _configure_website():
     website = frappe.get_doc("Website Settings", "Website Settings")
     website.app_name = "Barakat"
+    website.app_logo = "/assets/barakat_master/images/barakat-logo.svg"
     website.hide_footer_signup = 1
     website.footer_powered = 0
     website.footer = ""
@@ -44,42 +45,46 @@ def _login_custom_css():
     return """
 /* ── Login page ─────────────────────────────────────── */
 .login-content .app-logo {
-    height: 40px;
+    height: 36px;
     width: auto;
 }
 
-/* Language picker */
-.lang-selector {
-    position: fixed;
-    top: 16px;
-    right: 20px;
-    z-index: 100;
-}
-
-.lang-selector select {
-    border: 1px solid #e2e6ea;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 0.85rem;
-    background: #fff;
-    color: #444;
-    cursor: pointer;
-    outline: none;
-}
-
-.lang-selector select:hover {
-    border-color: #4361ee;
-}
-
-/* Hide the default ugly navbar on login */
-.navbar {
-    display: none !important;
-}
-
-/* Clean up page background */
+/* Clean up the login card */
 .for-login .login-content {
     border-radius: 12px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     border: none;
+}
+
+/* Slim clean navbar — remove background, border, padding */
+.navbar {
+    background: transparent !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    padding: 8px 16px !important;
+    min-height: auto !important;
+}
+
+/* Hide collapse toggle and any nav links */
+.navbar-toggler,
+.navbar-collapse .navbar-nav {
+    display: none !important;
+}
+
+/* Style the brand (our logo) */
+.navbar-brand {
+    padding: 0 !important;
+}
+
+/* Language picker select */
+.lang-selector select,
+select.form-control[name="language"] {
+    border: 1px solid #e2e6ea !important;
+    border-radius: 6px !important;
+    padding: 5px 10px !important;
+    font-size: 0.85rem !important;
+    background: #fff !important;
+    color: #444 !important;
+    box-shadow: none !important;
 }
 """

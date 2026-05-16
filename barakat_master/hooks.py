@@ -9,6 +9,8 @@ after_install = "barakat_master.setup.install.after_install"
 
 app_logo_url = "/assets/barakat_master/images/barakat-logo.svg"
 
+brand_html = "<img src='/assets/barakat_master/images/barakat-logo.svg' height='28' style='margin-top:-2px'>"
+
 get_website_user_home_page = "barakat_master.utils.get_user_home_page"
 
 doc_events = {
