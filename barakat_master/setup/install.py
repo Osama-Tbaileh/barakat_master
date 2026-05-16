@@ -23,6 +23,12 @@ def _configure_languages():
     system.language = "en"
     system.save(ignore_permissions=True)
 
+    allowed = {"ar", "en", "he"}
+
+    # Disable all languages except our three
+    frappe.db.sql("UPDATE `tabLanguage` SET enabled = 0 WHERE language_code NOT IN ('ar', 'en', 'he')")
+
+    # Ensure our three exist and are enabled
     for lang_code, lang_name in [("ar", "Arabic"), ("en", "English"), ("he", "Hebrew")]:
         if not frappe.db.exists("Language", lang_code):
             doc = frappe.new_doc("Language")
