@@ -35,16 +35,21 @@ def enqueue_user_sync_to_clients(doc, method):
 	if doc.name in _SKIP_USERS:
 		return
 
-	# If this save was triggered by a client sync (X-Barakat-Sync header),
-	# skip pushing back — the originating client already has the data.
+	# If this save was triggered by a client sync, exclude only the originating
+	# site from the push — all other mapped clients still need the update.
+	originating_site = None
 	if frappe.get_request_header("X-Barakat-Sync"):
-		return
+		originating_site = frappe.get_request_header("X-Barakat-Source-Site")
 
 	mappings = frappe.get_all(
 		"User Site Mapping",
 		filters={"user": doc.name, "is_active": 1},
 		fields=["site_url"],
 	)
+	if not mappings:
+		return
+
+	mappings = [m for m in mappings if m.site_url != originating_site]
 	if not mappings:
 		return
 
